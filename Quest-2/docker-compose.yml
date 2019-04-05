@@ -18,7 +18,7 @@ services:
         environment:
           - MONGO_DATA_DIR=/data/mongodb/
           - MONGO_LOG_DIR=/var/log/
-- MONGODB_USER="admin" 
+          - MONGODB_USER="admin" 
           - MONGODB_PASS="admin"
         volumes:
           - /data/db:/data/mongodb/
