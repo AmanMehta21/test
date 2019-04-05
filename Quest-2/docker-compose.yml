@@ -1,0 +1,26 @@
+version: '2'
+services:
+    mynode:
+        build: Dockerfile
+        container_name: "my-node-app"
+        image: debian/latest
+        environment:
+            - NODE_ENV=development
+        ports:
+            - 80:5000
+        links:
+            - mongodb
+        depends_on:
+            - mongodb
+    mongodb:
+        image: mongo:latest
+        container_name: "mongodb"
+        environment:
+          - MONGO_DATA_DIR=/data/mongodb/
+          - MONGO_LOG_DIR=/var/log/
+		  - MONGODB_USER="user" 
+          - MONGODB_PASS="pass"
+        volumes:
+          - /data/db:/data/mongodb/
+        ports:
+            - 27017:27017
