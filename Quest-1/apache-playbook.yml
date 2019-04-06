@@ -1,0 +1,49 @@
+---
+- hosts: localhost
+  sudo: yes
+  become: yes
+
+  vars:
+    http_port: 80
+    apache_vhosts:
+      - {servername: "www.domain.tld", documentroot: "/www/domain",serveradmin: "webmaster@domain.tld"}
+      - {servername: "www.otherdomain.tld", documentroot: "/www/otherdomain", serveradmin: "webmaster@otherdomain.tld"}
+      - {servername: "www.otherdomain2.tld", documentroot: "/www/otherdomain2",serveradmin: "webmaster@otherdomain2.tld"}
+      - {servername: "www.otherdomain3.tld", documentroot: "/www/otherdomain3", serveradmin: "webmaster@otherdomain3.tld"}
+      - {servername: "www.otherdomain4.tld", documentroot: "/www/otherdomain4", serveradmin: "webmaster@otherdomain4.tld"}
+
+  tasks:
+
+    - name: install packages
+      apt: name={{ item }} update_cache=yes state=latest
+      with_items:
+        - apache2
+        - git
+
+    - name: enabled mod_rewrite
+      apache2_module: name=rewrite state=present
+      notify:
+        - restart apache2
+
+    - name: apache2 listen on port {{ http_port }}
+      lineinfile: dest=/etc/apache2/ports.conf regexp="^Listen " line="Listen {{ http_port }}" state=present
+      notify:
+        - restart apache2
+        
+    - name: create http virtual host files, one per servername
+      template: src=apache_vhost.conf.j2 dest=/etc/apache2/sites-available/{{ item.servername }}.conf mode=0644
+      with_items: 
+          - "{{ apache_vhosts }}"
+          - "{{ http_port }}" 
+          
+    - name: a2ensite {{ apache_domain_name }}
+      command: a2ensite {{ apache_domain_name }}
+      args:
+        creates: /etc/apache2/sites-enabled/{{ item.servername }}.conf
+      with_items: "{{ apache_vhosts }}"  
+      notify:
+        - restart apache2
+
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted

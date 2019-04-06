@@ -1,0 +1,18 @@
+NameVirtualHost *:{{ item.http_port }}
+
+{% for vhost in item.apache_vhosts %}
+<VirtualHost *:{{ item.http_port }}>
+  ServerName {{ vhost.servername }}
+  DocumentRoot {{ vhost.documentroot }}
+{% if vhost.serveradmin is defined %}
+  ServerAdmin {{ vhost.serveradmin }}
+{% endif %}
+  <Directory "{{ vhost.documentroot }}">
+    AllowOverride All
+    Options -Indexes FollowSymLinks
+    Order allow,deny
+    Allow from all
+  </Directory>
+</VirtualHost>
+
+{% endfor %}
