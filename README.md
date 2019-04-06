@@ -20,4 +20,6 @@ docker-compose up
 Access it by http://ipaddress:80
 
 
+Questions 3.
 
+Buildspec.yml is in Quest-3 folder.
