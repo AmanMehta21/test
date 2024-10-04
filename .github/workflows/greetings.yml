@@ -1,0 +1,17 @@
+name: Greetings
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [gcp-alert]
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - env:
+          MESSAGE: ${{ github.event.client_payload.message }}
+        run: echo $MESSAGE
